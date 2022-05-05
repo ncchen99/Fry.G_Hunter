@@ -5,11 +5,9 @@
         <div class="flex flex-row flex-wrap items-center mt-2 gap-y-4 gap-x-2">
           <div class="flex-1 w-full relative rounded-md shadow-sm">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 sm:text-sm"> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg> </span>
+              <span class="text-gray-500 sm:text-sm">
+                <SearchCircleIcon class="h-6 w-6" />
+              </span>
             </div>
             <input v-model.trim="input" v-on:blur="search(input)" v-on:keyup.enter="search(input)" type="text"
               id="search"
@@ -18,12 +16,8 @@
           </div>
           <div class="flex-initial">
             <button v-on:click="search"
-              class="flex w-full justify-center items-center bg-amber-500 hover:bg-amber-600 border border-transparent rounded-lg py-1.5 px-4 text-amber-50 border-amber-500"><svg
-                xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 sm:h-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              class="flex w-full justify-center items-center bg-amber-500 hover:bg-amber-600 border border-transparent rounded-lg py-1.5 px-4 text-amber-50 border-amber-500">
+              <SearchCircleIcon class="h-7 w-7 sm:h-6" />
             </button>
           </div>
         </div>
@@ -53,7 +47,9 @@
             </div>
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">營業時間</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">{{ detail.opening_hours_text }}</dd>
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 whitespace-pre-wrap">{{
+                  detail.opening_hours_text
+              }}</dd>
             </div>
             <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">電話</dt>
@@ -61,23 +57,25 @@
             </div>
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">評價</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2"> {{ detail.rating }} ⭐</dd>
-            </div>
-            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
-              <dt class="text-sm font-medium text-amber-600">剪貼簿</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">
-                <button type="button" v-on:click="copy"
-                  class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150">
-                  <div v-if="copied" class="flex items-center">
-                    <ClipboardCheckIcon class="h-5 w-5 mr-2" />
-                    複製好惹
-                  </div>
-                  <div v-else class="flex items-center">
-                    <ClipboardIcon class="h-5 w-5 mr-2" />
-                    複製
-                  </div>
-                </button>
+              <dd class="flex mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 items-center"> {{
+                  detail.rating
+              }}
+                <StarIcon v-if="detail.rating != undefined" class="inline h-4 w-4 ml-0.5" />
               </dd>
+            </div>
+            <div class="flex bg-amber-100 px-4 py-5 sm:px-6 rounded-lg justify-center">
+              <button type="button" v-on:click="copy"
+                class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150">
+                <div v-if="copied" class="flex items-center">
+                  <ClipboardCheckIcon class="h-5 w-5 mr-2" />
+                  複製好惹
+                </div>
+                <div v-else class="flex items-center">
+                  <ClipboardIcon class="h-5 w-5 mr-2" />
+                  複製到剪貼簿
+                </div>
+              </button>
+
             </div>
             <div class="mt-3 rounded-lg overflow-hidden flex">
               <div class="h-full flex-1 rounded-lg items-center aspect-square" id="map">
@@ -91,7 +89,7 @@
 </template>
 
 <script>
-import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon } from '@heroicons/vue/solid'
+import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon, SearchCircleIcon, StarIcon, } from '@heroicons/vue/outline'
 
 // Google Map API Global Var ><
 let map;
@@ -116,6 +114,8 @@ export default {
     RefreshIcon,
     ClipboardIcon,
     ClipboardCheckIcon,
+    SearchCircleIcon,
+    StarIcon,
   },
   mounted() {
     this.initMap();
@@ -198,6 +198,13 @@ export default {
 
           this.detail = place;
           this.isLoading = false;
+          this.detail.opening_hours_text = "";
+          console.log(place.opening_hours.weekday_text);
+          if ("opening_hours" in place && "weekday_text" in place.opening_hours) {
+            for (let weekday of place.opening_hours.weekday_text)
+              this.detail.opening_hours_text += weekday + '\n';
+          }
+          console.log(this.detail.opening_hours_text);
           this.state = place.plus_code != undefined ? place.plus_code.compound_code.split(" ")[1] : place.formatted_address;
         }
       });
