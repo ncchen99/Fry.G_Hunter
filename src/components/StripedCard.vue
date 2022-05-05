@@ -148,7 +148,6 @@ export default {
           for (var i = 0; i < results.length; i++) {
             var place = results[i];
             if (!place.geometry || !place.geometry.location) continue;
-            this.detail = place;
             const marker = new google.maps.Marker({
               map,
               position: place.geometry.location,
@@ -157,31 +156,11 @@ export default {
           map.setCenter(results[0].geometry.location);
         }
       });
-
-      // google.maps.event.addListener(marker, "click", () => {
-      //   const content = document.createElement("div");
-      //   const nameElement = document.createElement("h2");
-
-      //   nameElement.textContent = place.name;
-      //   content.appendChild(nameElement);
-
-      //   const placeIdElement = document.createElement("p");
-
-      //   placeIdElement.textContent = place.place_id;
-      //   content.appendChild(placeIdElement);
-
-      //   const placeAddressElement = document.createElement("p");
-
-      //   placeAddressElement.textContent = place.formatted_address;
-      //   content.appendChild(placeAddressElement);
-      //   infowindow.setContent(content);
-      //   infowindow.open(map, marker);
-      // });
     },
     setDetails(placeId) {
       const request = {
         placeId: placeId,
-        fields: ["name", "geometry", "formatted_address", "place_id", "opening_hours.weekday_text", "rating", "formatted_phone_number", "plus_code.compound_code"],
+        fields: ["name", "geometry", "formatted_address", "place_id", "opening_hours.weekday_text", "rating", "price_level", "formatted_phone_number", "plus_code.compound_code"],
       };
       var map = this.map;
       this.service.getDetails(request, (place, status) => {
@@ -199,12 +178,10 @@ export default {
           this.detail = place;
           this.isLoading = false;
           this.detail.opening_hours_text = "";
-          console.log(place.opening_hours.weekday_text);
           if ("opening_hours" in place && "weekday_text" in place.opening_hours) {
             for (let weekday of place.opening_hours.weekday_text)
               this.detail.opening_hours_text += weekday + '\n';
           }
-          console.log(this.detail.opening_hours_text);
           this.state = place.plus_code != undefined ? place.plus_code.compound_code.split(" ")[1] : place.formatted_address;
         }
       });
