@@ -9,8 +9,8 @@
                 <SearchCircleIcon class="h-6 w-6" />
               </span>
             </div>
-            <input v-model.trim="input" v-on:blur="search(input)" v-on:keyup.enter="search(input)" type="text"
-              id="search"
+            <input v-model.trim="input" v-on:blur="search(input)" v-on:keyup.enter="search(input)"
+              v-on:focus="input = ''" type="text" id="search"
               class="focus:ring-amber-400 focus:border-amber-400 bg-amber-50 focus:bg-amber-100 block w-full pl-12 pr-12 sm:text-sm border-gray-300 rounded-lg"
               placeholder="輸入要搜尋ㄉ地方..." />
           </div>
@@ -48,22 +48,37 @@
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">營業時間</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 whitespace-pre-wrap">{{
-                  detail.opening_hours_text
+                  detail.opening_hours_text ? detail.opening_hours_text : "找不到耶🥺"
               }}</dd>
             </div>
             <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">電話</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2"> {{ detail.formatted_phone_number }}</dd>
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2"> {{ detail.formatted_phone_number ?
+                  detail.formatted_phone_number : "找不到耶🥺"
+              }}</dd>
             </div>
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">評價</dt>
               <dd class="flex mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 items-center"> {{
-                  detail.rating
+                  detail.rating ? detail.rating : "找不到耶🥺"
               }}
                 <StarIcon v-if="detail.rating != undefined" class="inline h-4 w-4 ml-0.5" />
               </dd>
             </div>
-            <div class="flex bg-amber-100 px-4 py-5 sm:px-6 rounded-lg justify-center">
+            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
+              <dt class="text-sm font-medium text-amber-600">價錢</dt>
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">
+                <div v-if="'price_level' in detail" class="flex">
+                  <p v-for="i in parseInt(detail.price_level)" :key="i">
+                    <CurrencyDollarIcon class="inline h-4 w-4 ml-0.5" />
+                  </p>
+                </div>
+                <div v-else>
+                  找不到耶🥺
+                </div>
+              </dd>
+            </div>
+            <div class="mt-2 flex px-4 py-5 sm:px-6 rounded-lg justify-center">
               <button type="button" v-on:click="copy"
                 class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150">
                 <div v-if="copied" class="flex items-center">
@@ -80,6 +95,7 @@
             <div class="mt-3 rounded-lg overflow-hidden flex">
               <div class="h-full flex-1 rounded-lg items-center aspect-square" id="map">
               </div>
+              <div id="map2" hidden></div>
             </div>
           </dl>
         </div>
@@ -89,12 +105,13 @@
 </template>
 
 <script>
-import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon, SearchCircleIcon, StarIcon, } from '@heroicons/vue/outline'
+import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon, SearchCircleIcon, StarIcon, CurrencyDollarIcon, } from '@heroicons/vue/outline'
 
 // Google Map API Global Var ><
 let map;
 let service;
 let infowindow;
+let markers = [];
 
 export default {
   data() {
@@ -103,6 +120,7 @@ export default {
       infowindow: infowindow,
       service: service,
       detail: {},
+      markers: markers,
       input: '',
       state: '等待中...',
       copied: false,
@@ -116,6 +134,7 @@ export default {
     ClipboardCheckIcon,
     SearchCircleIcon,
     StarIcon,
+    CurrencyDollarIcon,
   },
   mounted() {
     this.initMap();
@@ -130,39 +149,57 @@ export default {
       });
       this.infowindow = new google.maps.InfoWindow();
       this.service = new google.maps.places.PlacesService(this.map);
-      this.setDetails("ChIJ0yAIKe12bjQRnqEH4osC7uA");
+      this.setDetails("ChIJ0yAIKe12bjQRnqEH4osC7uA"); // 成大 PlaceId
       this.map.addListener("click", (e) => {
         console.log(e.placeId);
         this.setDetails(e.placeId);
       });
-
     },
     search(input) {
       const request = {
         query: input,
         fields: ["name", "geometry", "place_id"],
       };
-      this.service.findPlaceFromQuery(request, function (results, status) {
+      // var addMarker = this.addMarker, map = this.map, removeAllMarker = this.removeAllMarker, setDetails = this.setDetails;
+      // 這個 js 變數 scope 問題，需要請教大佬 
+      this.service.findPlaceFromQuery(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-          console.log(`找到 ${results.length} 個地點！`);
+          // this.state = `找到 ${results.length} 個地點！`;
+          this.removeAllMarker();
           for (var i = 0; i < results.length; i++) {
             var place = results[i];
             if (!place.geometry || !place.geometry.location) continue;
-            const marker = new google.maps.Marker({
-              map,
-              position: place.geometry.location,
-            });
+            this.addMarker(place.geometry.location);
           }
-          map.setCenter(results[0].geometry.location);
+          this.map.setCenter(results[0].geometry.location);
+          this.setDetails(results[0].place_id);
         }
       });
+    },
+    addMarker(position) {
+      const marker = new google.maps.Marker({
+        map: this.map,
+        position: position,
+      });
+      this.markers.push(marker);
+    },
+    removeAllMarker() {
+      console.log(this.markers);
+      var map = new google.maps.Map(document.getElementById("map2"));
+      for (let i = 0; i < this.markers.length; i++)
+        this.markers[i].setMap(map);
+      this.markers = [];
+      // this.map = new google.maps.Map(document.getElementById("map"), {
+      //   zoom: 15,
+      //   streetViewControl: false,
+      //   mapTypeControl: false
+      // });
     },
     setDetails(placeId) {
       const request = {
         placeId: placeId,
         fields: ["name", "geometry", "formatted_address", "place_id", "opening_hours.weekday_text", "rating", "price_level", "formatted_phone_number", "plus_code.compound_code"],
       };
-      var map = this.map;
       this.service.getDetails(request, (place, status) => {
         if (
           status === google.maps.places.PlacesServiceStatus.OK &&
@@ -170,12 +207,9 @@ export default {
           place.geometry &&
           place.geometry.location
         ) {
-          const marker = new google.maps.Marker({
-            map,
-            position: place.geometry.location,
-          });
-
+          // this.addMarker(place.geometry.location);
           this.detail = place;
+          // this.input = place.name;
           this.isLoading = false;
           this.detail.opening_hours_text = "";
           if ("opening_hours" in place && "weekday_text" in place.opening_hours) {
