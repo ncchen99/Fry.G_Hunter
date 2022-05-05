@@ -11,7 +11,8 @@
                     d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg> </span>
             </div>
-            <input v-model.trim="input" v-on:blur="search()" type="text" id="search"
+            <input v-model.trim="input" v-on:blur="search(input)" v-on:keyup.enter="search(input)" type="text"
+              id="search"
               class="focus:ring-amber-400 focus:border-amber-400 bg-amber-50 focus:bg-amber-100 block w-full pl-12 pr-12 sm:text-sm border-gray-300 rounded-lg"
               placeholder="輸入要搜尋ㄉ地方..." />
           </div>
@@ -31,7 +32,12 @@
     <div class="pt-4 leading-7 ">
       <div class="bg-amber-50 overflow-hidden sm:rounded-lg ">
         <div class="bg-amber-100 px-4 py-4 sm:px-6 rounded-lg">
-          <h3 class="text-lg leading-6 font-medium text-amber-600"> {{ input }} </h3>
+          <h3 class="text-lg leading-6 font-medium text-amber-600">
+            <RefreshIcon v-if="isLoading" class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" />
+            <div v-else>
+              找到惹🥺
+            </div>
+          </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-600">{{ state }}</p>
         </div>
         <div class="flex-initial">
@@ -60,9 +66,17 @@
             <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">剪貼簿</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">
-                <button type="button"
-                  class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150 cursor-not-allowed "
-                  disabled>複製</button>
+                <button type="button" v-on:click="copy"
+                  class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150">
+                  <div v-if="copied" class="flex items-center">
+                    <ClipboardCheckIcon class="h-5 w-5 mr-2" />
+                    複製好惹
+                  </div>
+                  <div v-else class="flex items-center">
+                    <ClipboardIcon class="h-5 w-5 mr-2" />
+                    複製
+                  </div>
+                </button>
               </dd>
             </div>
             <div class="mt-3 rounded-lg overflow-hidden flex">
@@ -77,7 +91,7 @@
 </template>
 
 <script>
-import { PaperClipIcon } from '@heroicons/vue/solid'
+import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon } from '@heroicons/vue/solid'
 
 // Google Map API Global Var ><
 let map;
@@ -91,12 +105,17 @@ export default {
       infowindow: infowindow,
       service: service,
       detail: {},
-      input: '今晚我想來點...',
+      input: '',
       state: '等待中...',
+      copied: false,
+      isLoading: true,
     }
   },
   components: {
     PaperClipIcon,
+    RefreshIcon,
+    ClipboardIcon,
+    ClipboardCheckIcon,
   },
   mounted() {
     this.initMap();
@@ -111,42 +130,26 @@ export default {
       });
       this.infowindow = new google.maps.InfoWindow();
       this.service = new google.maps.places.PlacesService(this.map);
+      this.setDetails("ChIJ0yAIKe12bjQRnqEH4osC7uA");
       this.map.addListener("click", (e) => {
         console.log(e.placeId);
-        const request = {
-          placeId: e.placeId,
-          fields: ["name", "geometry", "formatted_address", "place_id", "opening_hours.weekday_text", "rating", "formatted_phone_number"],
-        };
-        this.service.getDetails(request, (place, status) => {
-          if (
-            status === google.maps.places.PlacesServiceStatus.OK &&
-            place &&
-            place.geometry &&
-            place.geometry.location
-          ) {
-            const marker = new google.maps.Marker({
-              map,
-              position: place.geometry.location,
-            });
-            this.detail = place;
-          }
-        });
+        this.setDetails(e.placeId);
       });
 
     },
-    search(event) {
-      console.log(this.input);
+    search(input) {
       const request = {
-        query: this.input,
-        fields: ["name", "formatted_address", "place_id", "geometry"],
+        query: input,
+        fields: ["name", "geometry", "place_id"],
       };
-      service.findPlaceFromQuery(request, function (results, status) {
+      this.service.findPlaceFromQuery(request, function (results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
+          console.log(`找到 ${results.length} 個地點！`);
           for (var i = 0; i < results.length; i++) {
             var place = results[i];
             if (!place.geometry || !place.geometry.location) continue;
-
-            marker = new google.maps.Marker({
+            this.detail = place;
+            const marker = new google.maps.Marker({
               map,
               position: place.geometry.location,
             });
@@ -155,25 +158,57 @@ export default {
         }
       });
 
-      google.maps.event.addListener(marker, "click", () => {
-        const content = document.createElement("div");
-        const nameElement = document.createElement("h2");
+      // google.maps.event.addListener(marker, "click", () => {
+      //   const content = document.createElement("div");
+      //   const nameElement = document.createElement("h2");
 
-        nameElement.textContent = place.name;
-        content.appendChild(nameElement);
+      //   nameElement.textContent = place.name;
+      //   content.appendChild(nameElement);
 
-        const placeIdElement = document.createElement("p");
+      //   const placeIdElement = document.createElement("p");
 
-        placeIdElement.textContent = place.place_id;
-        content.appendChild(placeIdElement);
+      //   placeIdElement.textContent = place.place_id;
+      //   content.appendChild(placeIdElement);
 
-        const placeAddressElement = document.createElement("p");
+      //   const placeAddressElement = document.createElement("p");
 
-        placeAddressElement.textContent = place.formatted_address;
-        content.appendChild(placeAddressElement);
-        infowindow.setContent(content);
-        infowindow.open(map, marker);
+      //   placeAddressElement.textContent = place.formatted_address;
+      //   content.appendChild(placeAddressElement);
+      //   infowindow.setContent(content);
+      //   infowindow.open(map, marker);
+      // });
+    },
+    setDetails(placeId) {
+      const request = {
+        placeId: placeId,
+        fields: ["name", "geometry", "formatted_address", "place_id", "opening_hours.weekday_text", "rating", "formatted_phone_number", "plus_code.compound_code"],
+      };
+      var map = this.map;
+      this.service.getDetails(request, (place, status) => {
+        if (
+          status === google.maps.places.PlacesServiceStatus.OK &&
+          place &&
+          place.geometry &&
+          place.geometry.location
+        ) {
+          const marker = new google.maps.Marker({
+            map,
+            position: place.geometry.location,
+          });
+
+          this.detail = place;
+          this.isLoading = false;
+          this.state = place.plus_code != undefined ? place.plus_code.compound_code.split(" ")[1] : place.formatted_address;
+        }
       });
+    },
+    copy() {
+      console.log("copy");
+      this.copied = true;
+      setTimeout(() => {
+        this.copied = false;
+      }, "2000");
+      // TODO 
     },
   },
 }
