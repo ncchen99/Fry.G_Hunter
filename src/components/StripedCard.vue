@@ -40,7 +40,7 @@
               <dt class="text-sm font-medium text-amber-600">名字</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">{{ detail.name }}</dd>
             </div>
-            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
+            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:w-[432px] rounded-lg">
               <dt class="text-sm font-medium text-amber-600">地址</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">{{ detail.formatted_address }}
               </dd>
