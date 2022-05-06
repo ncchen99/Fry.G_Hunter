@@ -1,11 +1,7 @@
 module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    extend: {
-      width: {
-        "google-map": "23.813rem",
-      },
-    },
+    extend: {},
   },
   plugins: [require("@tailwindcss/forms")],
 };
