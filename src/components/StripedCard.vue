@@ -38,40 +38,45 @@
           <dl>
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">名字</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">{{ detail.name }}</dd>
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="name">{{ detail.name }}</dd>
             </div>
             <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:w-[432px] rounded-lg">
               <dt class="text-sm font-medium text-amber-600">地址</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">{{ detail.formatted_address }}
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="formatted_address">{{
+                  detail.formatted_address
+              }}
               </dd>
             </div>
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">營業時間</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 whitespace-pre-wrap">{{
-                  detail.opening_hours_text ? detail.opening_hours_text : "找不到耶🥺"
-              }}</dd>
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 whitespace-pre-wrap" id="opening_hours_text">
+                {{
+                    detail.opening_hours_text ? detail.opening_hours_text : "找不到耶🥺"
+                }}</dd>
             </div>
             <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">電話</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2"> {{ detail.formatted_phone_number ?
-                  detail.formatted_phone_number : "找不到耶🥺"
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="formatted_phone_number"> {{
+                  detail.formatted_phone_number ?
+                    detail.formatted_phone_number : "找不到耶🥺"
               }}</dd>
             </div>
             <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">評價</dt>
-              <dd class="flex mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 items-center"> {{
+              <dd class="flex mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 items-center" id="rating"> {{
                   detail.rating ? detail.rating : "找不到耶🥺"
               }}
-                <StarIcon v-if="detail.rating != undefined" class="inline h-4 w-4 ml-0.5" />
+                <StarIcon v-if="detail.rating != undefined" class="flex h-4 w-4 ml-0.5" />
               </dd>
             </div>
             <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
               <dt class="text-sm font-medium text-amber-600">價錢</dt>
-              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2">
-                <div v-if="'price_level' in detail" class="flex">
-                  <p v-for="i in parseInt(detail.price_level)" :key="i">
-                    <CurrencyDollarIcon class="inline h-4 w-4 ml-0.5" />
-                  </p>
+              <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="price_level">
+                <div v-if="'price_level' in detail" class="flex justify-start items-center">
+                  {{ price_leval_table[parseInt(detail.price_level)] }}
+                  <div v-for="i in parseInt(detail.price_level)" :key="i">
+                    <CurrencyDollarIcon class="flex h-4 w-4" />
+                  </div>
                 </div>
                 <div v-else>
                   找不到耶🥺
@@ -80,12 +85,17 @@
             </div>
             <div class="mt-2 flex px-4 py-5 sm:px-6 rounded-lg justify-center">
               <button type="button" v-on:click="copy"
-                class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150">
-                <div v-if="copied" class="flex items-center">
+                class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150"
+                v-bind:class="{ 'bg-teal-600 hover:bg-teal-700 text-teal-50': copied == 2, 'bg-pink-600 hover:bg-pink-700 text-pink-50': copied == 3 }">
+                <div v-if="copied == 2" class="flex items-center">
                   <ClipboardCheckIcon class="h-5 w-5 mr-2" />
                   複製好惹
                 </div>
-                <div v-else class="flex items-center">
+                <div v-if="copied == 3" class="flex items-center">
+                  <ExclamationCircleIcon class="h-5 w-5 mr-2" />
+                  複製出錯惹🥺
+                </div>
+                <div v-if="copied == 1" class="flex items-center">
                   <ClipboardIcon class="h-5 w-5 mr-2" />
                   複製到剪貼簿
                 </div>
@@ -105,7 +115,7 @@
 </template>
 
 <script>
-import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon, SearchCircleIcon, StarIcon, CurrencyDollarIcon, } from '@heroicons/vue/outline'
+import { PaperClipIcon, RefreshIcon, ClipboardIcon, ClipboardCheckIcon, SearchCircleIcon, StarIcon, CurrencyDollarIcon, ExclamationCircleIcon, FastForwardIcon, } from '@heroicons/vue/outline'
 
 // Google Map API Global Var ><
 let map;
@@ -123,8 +133,9 @@ export default {
       markers: markers,
       input: '',
       state: '等待中...',
-      copied: false,
+      copied: 1,
       isLoading: true,
+      price_leval_table: ["免費", "便宜", "中等", "貴", "超貴"],
     }
   },
   components: {
@@ -135,6 +146,7 @@ export default {
     SearchCircleIcon,
     StarIcon,
     CurrencyDollarIcon,
+    ExclamationCircleIcon,
   },
   mounted() {
     this.initMap();
@@ -189,11 +201,6 @@ export default {
       for (let i = 0; i < this.markers.length; i++)
         this.markers[i].setMap(map);
       this.markers = [];
-      // this.map = new google.maps.Map(document.getElementById("map"), {
-      //   zoom: 15,
-      //   streetViewControl: false,
-      //   mapTypeControl: false
-      // });
     },
     setDetails(placeId) {
       const request = {
@@ -220,13 +227,33 @@ export default {
         }
       });
     },
-    copy() {
-      console.log("copy");
-      this.copied = true;
+    copyBtnRender(state) {
+      this.copied = state;
       setTimeout(() => {
-        this.copied = false;
+        this.copied = 1;
       }, "2000");
-      // TODO 
+    },
+    copy() {
+      let content = '';
+      var itemDict = { "名字": "name", "地址": "formatted_address", "營業時間": "opening_hours_text", "電話": "formatted_phone_number", "評價": "rating", "價錢": "price_level" }
+      for (var key in itemDict)
+        content += `${key}：${document.getElementById(itemDict[key]).innerText.trim()}${"\n"}`;
+      navigator.clipboard.writeText(content)
+        .then(() => {
+          this.copyBtnRender(2);
+        })
+        .catch(err => {
+          var textarea = document.createElement("textarea");
+          textarea.textContent = content;
+          document.body.appendChild(textarea);
+          var selection = document.getSelection(), range = document.createRange();
+          range.selectNode(textarea);
+          selection.removeAllRanges().addRange(range);
+          var success = document.execCommand("copy");
+          selection.removeAllRanges();
+          document.body.removeChild(textarea);
+          this.copyBtnRender(2 + !success);
+        })
     },
   },
 }
