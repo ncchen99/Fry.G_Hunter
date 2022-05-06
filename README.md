@@ -1,7 +1,9 @@
-# Vue 3 + Vite
+# 炸雞獵人の小工具
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+[![Netlify Status](https://api.netlify.com/api/v1/badges/67942ae7-4071-4b3e-b63d-f6505f2cc7ee/deploy-status)](https://app.netlify.com/sites/fryg/deploys)
 
-## Recommended IDE Setup
+### 使用 Google Map API + Vue.js 做ㄉ
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+### 部屬到 Netlify🆙 
+
+<img src="https://i.imgur.com/GqKhmMC.png" alt="截圖" width="1024"/>
