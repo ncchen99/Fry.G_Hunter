@@ -196,7 +196,6 @@ export default {
       this.markers.push(marker);
     },
     removeAllMarker() {
-      console.log(this.markers);
       var map = new google.maps.Map(document.getElementById("map2"));
       for (let i = 0; i < this.markers.length; i++)
         this.markers[i].setMap(map);
