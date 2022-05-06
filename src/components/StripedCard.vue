@@ -1,5 +1,5 @@
 <template>
-  <div class="divide-y divide-gray-300/50">
+  <div class="">
     <div class="space-y-6 py-4 text-base leading-7 text-gray-600">
       <div class="space-y-4">
         <div class="flex flex-row flex-wrap items-center mt-2 gap-y-4 gap-x-2">
@@ -11,21 +11,21 @@
             </div>
             <input v-model.trim="input" v-on:blur="search(input)" v-on:keyup.enter="search(input)"
               v-on:focus="input = ''" type="text" id="search"
-              class="focus:ring-amber-400 focus:border-amber-400 bg-amber-50 focus:bg-amber-100 block w-full pl-12 pr-12 sm:text-sm border-gray-300 rounded-lg"
+              class="focus:ring-amber-400 focus:border-amber-400 bg-amber-50/60 focus:bg-amber-100/80 block w-full pl-12 pr-12 sm:text-sm border-gray-300 drop-shadow-md hover:drop-shadow rounded-lg"
               placeholder="輸入要搜尋ㄉ地方..." />
           </div>
           <div class="flex-initial">
             <button v-on:click="search"
-              class="flex w-full justify-center items-center bg-amber-500 hover:bg-amber-600 border border-transparent rounded-lg py-1.5 px-4 text-amber-50 border-amber-500">
+              class="flex w-full justify-center items-center bg-amber-500 hover:bg-amber-600 hover:border-amber-600  border  rounded-lg py-1.5 px-4 text-amber-50 border-amber-500 drop-shadow-md hover:drop-shadow">
               <SearchCircleIcon class="h-7 w-7 sm:h-6" />
             </button>
           </div>
         </div>
       </div>
     </div>
-    <div class="pt-4 leading-7 ">
-      <div class="bg-amber-50 overflow-hidden sm:rounded-lg ">
-        <div class="bg-amber-100 px-4 py-4 sm:px-6 rounded-lg">
+    <div class="pt-3 leading-7 ">
+      <div class=" sm:rounded-lg ">
+        <div class="bg-amber-100/50 px-4 py-4 sm:px-6 rounded-lg shadow-md hover:shadow">
           <h3 class="text-lg leading-6 font-medium text-amber-600">
             <RefreshIcon v-if="isLoading" class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" />
             <div v-else>
@@ -34,34 +34,34 @@
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-600">{{ state }}</p>
         </div>
-        <div class="flex-initial">
+        <div class="flex-initial bg-transpant rounded-lg shadow-md hover:shadow mt-4 overflow-hidden">
           <dl>
-            <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-amber-100/50 px-4 py-4 pt-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">名字</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="name">{{ detail.name }}</dd>
             </div>
-            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:w-[432px] rounded-lg">
+            <div class=" bg-amber-50/50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:w-[432px]">
               <dt class="text-sm font-medium text-amber-600">地址</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="formatted_address">{{
                   detail.formatted_address
               }}
               </dd>
             </div>
-            <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-amber-100/50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">營業時間</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 whitespace-pre-wrap" id="opening_hours_text">
                 {{
                     detail.opening_hours_text ? detail.opening_hours_text : "找不到耶🥺"
                 }}</dd>
             </div>
-            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
+            <div class="bg-amber-50/50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">電話</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="formatted_phone_number"> {{
                   detail.formatted_phone_number ?
                     detail.formatted_phone_number : "找不到耶🥺"
               }}</dd>
             </div>
-            <div class=" px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
+            <div class="bg-amber-100/50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">評價</dt>
               <dd class="flex mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2 items-center" id="rating"> {{
                   detail.rating ? detail.rating : "找不到耶🥺"
@@ -69,7 +69,7 @@
                 <StarIcon v-if="detail.rating != undefined" class="flex h-4 w-4 ml-0.5" />
               </dd>
             </div>
-            <div class="bg-amber-100 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-lg">
+            <div class="bg-amber-50/50 pb-5 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-amber-600">價錢</dt>
               <dd class="mt-1 text-sm text-gray-600 sm:mt-0 sm:col-span-2" id="price_level">
                 <div v-if="'price_level' in detail" class="flex justify-start items-center">
@@ -83,31 +83,31 @@
                 </div>
               </dd>
             </div>
-            <div class="mt-2 flex px-4 py-5 sm:px-6 rounded-lg justify-center">
-              <button type="button" v-on:click="copy"
-                class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150"
-                v-bind:class="{ 'bg-teal-600 hover:bg-teal-700 text-teal-50': copied == 2, 'bg-pink-600 hover:bg-pink-700 text-pink-50': copied == 3 }">
-                <div v-if="copied == 2" class="flex items-center">
-                  <ClipboardCheckIcon class="h-5 w-5 mr-2" />
-                  複製好惹
-                </div>
-                <div v-if="copied == 3" class="flex items-center">
-                  <ExclamationCircleIcon class="h-5 w-5 mr-2" />
-                  複製出錯惹🥺
-                </div>
-                <div v-if="copied == 1" class="flex items-center">
-                  <ClipboardIcon class="h-5 w-5 mr-2" />
-                  複製到剪貼簿
-                </div>
-              </button>
-
-            </div>
-            <div class="mt-3 rounded-lg overflow-hidden flex">
-              <div class="h-full flex-1 rounded-lg items-center aspect-square" id="map">
-              </div>
-              <div id="map2" hidden></div>
-            </div>
           </dl>
+        </div>
+        <div class="mt-2 flex px-4 py-5 sm:px-6 rounded-lg justify-center ">
+          <button type="button" v-on:click="copy"
+            class="inline-flex items-center px-3 py-2 font-semibold leading-6 text-sm shadow rounded-md text-amber-50 bg-amber-500 hover:bg-amber-600 transition ease-in-out duration-150 drop-shadow-md hover:drop-shadow"
+            v-bind:class="{ 'bg-teal-600 hover:bg-teal-700 text-teal-50': copied == 2, 'bg-pink-600 hover:bg-pink-700 text-pink-50': copied == 3 }">
+            <div v-if="copied == 2" class="flex items-center">
+              <ClipboardCheckIcon class="h-5 w-5 mr-2" />
+              複製好惹
+            </div>
+            <div v-if="copied == 3" class="flex items-center">
+              <ExclamationCircleIcon class="h-5 w-5 mr-2" />
+              複製出錯惹🥺
+            </div>
+            <div v-if="copied == 1" class="flex items-center">
+              <ClipboardIcon class="h-5 w-5 mr-2" />
+              複製到剪貼簿
+            </div>
+          </button>
+
+        </div>
+        <div class="mt-3 rounded-lg overflow-hidden flex shadow-md hover:shadow">
+          <div class="h-full flex-1 rounded-lg items-center aspect-square" id="map">
+          </div>
+          <div id="map2" hidden></div>
         </div>
       </div>
     </div>
@@ -238,21 +238,30 @@ export default {
       var itemDict = { "名字": "name", "地址": "formatted_address", "營業時間": "opening_hours_text", "電話": "formatted_phone_number", "評價": "rating", "價錢": "price_level" }
       for (var key in itemDict)
         content += `${key}：${document.getElementById(itemDict[key]).innerText.trim()}${"\n"}`;
+
+
       navigator.clipboard.writeText(content)
         .then(() => {
           this.copyBtnRender(2);
         })
         .catch(err => {
-          var textarea = document.createElement("textarea");
-          textarea.textContent = content;
-          document.body.appendChild(textarea);
-          var selection = document.getSelection(), range = document.createRange();
-          range.selectNode(textarea);
-          selection.removeAllRanges().addRange(range);
-          var success = document.execCommand("copy");
-          selection.removeAllRanges();
-          document.body.removeChild(textarea);
-          this.copyBtnRender(2 + !success);
+          try {
+            // @deprecated (method) Document.execCommand(commandId: string, showUI?: boolean, value?: string): boolean
+            var textarea = document.createElement("textarea");
+            textarea.textContent = content;
+            document.body.appendChild(textarea);
+            var selection = document.getSelection(), range = document.createRange();
+            range.selectNode(textarea);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            var success = document.execCommand("copy");
+            selection.removeAllRanges();
+            document.body.removeChild(textarea);
+            this.copyBtnRender(2 + !success);
+          } catch (e) {
+            console.log(e);
+            this.copyBtnRender(3);
+          }
         })
     },
   },
